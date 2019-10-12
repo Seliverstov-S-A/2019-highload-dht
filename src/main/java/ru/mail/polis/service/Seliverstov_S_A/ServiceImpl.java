@@ -40,20 +40,19 @@ public class ServiceImpl extends HttpServer implements Service {
      * @return - response
      */
     @Path("/v0/entity")
-    public Response entity(
-            @Param("id") String id, @NotNull Request request) {
+    public Response entity(@Param("id") final String id, @NotNull final Request request) {
         if (id == null || id.isEmpty()) {
             return new Response(Response.BAD_REQUEST, "Id must be not null".getBytes(StandardCharsets.UTF_8));
         }
 
         try {
-            var key = ByteBuffer.wrap(id.getBytes(StandardCharsets.UTF_8));
+            final var key = ByteBuffer.wrap(id.getBytes(StandardCharsets.UTF_8));
             switch (request.getMethod()) {
                 case Request.METHOD_GET: {
                     try {
-                        ByteBuffer value = dao.get(key);
-                        ByteBuffer duplicate = value.duplicate();
-                        var body = new byte[duplicate.remaining()];
+                        final ByteBuffer value = dao.get(key);
+                        final ByteBuffer duplicate = value.duplicate();
+                        final var body = new byte[duplicate.remaining()];
                         duplicate.get(body);
                         return new Response(Response.OK, body);
                     } catch (NoSuchElementExceptionLite | IOException ex) {
@@ -74,24 +73,24 @@ public class ServiceImpl extends HttpServer implements Service {
                 default:
                     return new Response(Response.METHOD_NOT_ALLOWED, Response.EMPTY);
             }
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             return new Response(Response.INTERNAL_ERROR, Response.EMPTY);
         }
     }
 
     @Override
-    public void handleDefault(Request request, HttpSession session) throws IOException {
-        var response = new Response(Response.BAD_REQUEST, Response.EMPTY);
+    public void handleDefault(final Request request, final HttpSession session) throws IOException {
+        final var response = new Response(Response.BAD_REQUEST, Response.EMPTY);
         session.sendResponse(response);
     }
 
-    private static HttpServerConfig getConfig(int port) {
+    private static HttpServerConfig getConfig(final int port) {
         if (port <= 1024 || 65536 <= port) {
             throw new IllegalArgumentException("invalid port");
         }
-        AcceptorConfig acceptor = new AcceptorConfig();
+        final AcceptorConfig acceptor = new AcceptorConfig();
         acceptor.port = port;
-        HttpServerConfig config = new HttpServerConfig();
+        final HttpServerConfig config = new HttpServerConfig();
         config.acceptors = new AcceptorConfig[]{acceptor};
         return config;
     }
