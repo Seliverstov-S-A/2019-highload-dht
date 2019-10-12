@@ -18,10 +18,10 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class ServiceImpl extends HttpServer implements Service {
-    private DAO dao;
+    final private DAO dao;
 
-    public ServiceImpl(int port,
-                       @NotNull DAO dao) throws IOException {
+    public ServiceImpl(final int port,
+                       @NotNull final DAO dao) throws IOException {
         super(getConfig(port));
         this.dao = dao;
     }
