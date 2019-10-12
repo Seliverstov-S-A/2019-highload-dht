@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class ServiceImpl extends HttpServer implements Service {
-    final private DAO dao;
+    private final DAO dao;
 
     public ServiceImpl(final int port,
                        @NotNull final DAO dao) throws IOException {
@@ -27,7 +27,7 @@ public class ServiceImpl extends HttpServer implements Service {
     }
 
     /**
-     *public method status
+     *public method status.
      *
      * @return - response
      */
@@ -37,7 +37,7 @@ public class ServiceImpl extends HttpServer implements Service {
     }
 
     /**
-     *public method entity
+     *public method entity.
      *
      * @param request - requests: GET, PUT, DELETE
      * @param id      - id element
