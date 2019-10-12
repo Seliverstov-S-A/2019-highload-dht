@@ -29,7 +29,7 @@ public final class DAOImpl implements DAO {
     public class MyIterator implements Iterator<Record>, AutoCloseable {
         private final RocksIterator iterator;
 
-        MyIterator(RocksIterator iterator) {
+        MyIterator(final RocksIterator iterator) {
             this.iterator = iterator;
         }
 
