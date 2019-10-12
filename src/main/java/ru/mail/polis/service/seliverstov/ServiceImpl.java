@@ -26,7 +26,9 @@ public class ServiceImpl extends HttpServer implements Service {
         this.dao = dao;
     }
 
-    /** <p> response entity </p>
+    /**
+     *public method status
+     *
      * @return - response
      */
     @Path("/v0/status")
@@ -34,7 +36,9 @@ public class ServiceImpl extends HttpServer implements Service {
         return Response.ok("OK");
     }
 
-    /** <p> response entity </p>
+    /**
+     *public method entity
+     *
      * @param request - requests: GET, PUT, DELETE
      * @param id      - id element
      * @return - response
