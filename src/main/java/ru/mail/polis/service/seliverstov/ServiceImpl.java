@@ -1,4 +1,4 @@
-package ru.mail.polis.service.Seliverstov_S_A;
+package ru.mail.polis.service.seliverstov;
 
 import one.nio.http.HttpServer;
 import one.nio.http.Param;

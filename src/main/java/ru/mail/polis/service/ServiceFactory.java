@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import ru.mail.polis.dao.DAO;
 
-import ru.mail.polis.service.Seliverstov_S_A.ServiceImpl;
+import ru.mail.polis.service.seliverstov.ServiceImpl;
 
 
 /**
