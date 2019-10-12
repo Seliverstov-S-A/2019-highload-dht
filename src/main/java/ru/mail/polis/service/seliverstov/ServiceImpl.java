@@ -40,12 +40,11 @@ public class ServiceImpl extends HttpServer implements Service {
      * @return - response
      */
     @Path("/v0/entity")
-    public Response entity(@Param("id") final String id, @NotNull final Request request) {
+    public Response entity(@Param("id") final String id, @NotNull final Request request) throws IOException {
         if (id == null || id.isEmpty()) {
             return new Response(Response.BAD_REQUEST, "Id must be not null".getBytes(StandardCharsets.UTF_8));
         }
 
-        try {
             final var key = ByteBuffer.wrap(id.getBytes(StandardCharsets.UTF_8));
             switch (request.getMethod()) {
                 case Request.METHOD_GET: {
@@ -73,9 +72,7 @@ public class ServiceImpl extends HttpServer implements Service {
                 default:
                     return new Response(Response.METHOD_NOT_ALLOWED, Response.EMPTY);
             }
-        } catch (final Exception ex) {
-            return new Response(Response.INTERNAL_ERROR, Response.EMPTY);
-        }
+
     }
 
     @Override
