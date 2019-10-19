@@ -95,7 +95,7 @@ public class ServiceImpl extends HttpServer implements Service {
         try {
             switch (request.getMethod()) {
                 case Request.METHOD_GET:
-                    executeAsync(session, () -> (get(key)));
+                    executeAsync(session, () -> get(key));
                     break;
                 case Request.METHOD_PUT:
                     executeAsync(session, () -> {
@@ -118,7 +118,7 @@ public class ServiceImpl extends HttpServer implements Service {
         }
     }
 
-    private Response get(@NotNull final ByteBuffer key){
+    private Response get(@NotNull final ByteBuffer key) {
         try {
             final ByteBuffer value = dao.get(key);
             final ByteBuffer duplicate = value.duplicate();
@@ -129,6 +129,7 @@ public class ServiceImpl extends HttpServer implements Service {
             return new Response(Response.NOT_FOUND, Response.EMPTY);
         }
     }
+
     @Override
     public void handleDefault(@NotNull final Request request, @NotNull final HttpSession session) throws IOException {
         switch (request.getPath()) {
