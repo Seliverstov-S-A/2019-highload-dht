@@ -13,11 +13,9 @@
 !settings.gradle
 !checkstyle.xml
 !.codeclimate.yml
-!put.lua
-!get.lua
-!get.svg
-!put.svg
-!wrk_results.txt
+!*.lua
+!*.svg
+!result.txt
 
 
 # ...even if they are in subdirectories
