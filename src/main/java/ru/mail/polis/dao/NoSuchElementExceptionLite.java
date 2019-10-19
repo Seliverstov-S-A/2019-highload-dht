@@ -10,9 +10,7 @@ public class NoSuchElementExceptionLite extends NoSuchElementException {
     }
 
     @Override
-    public Throwable fillInStackTrace() {
-        synchronized (this){
+    public synchronized Throwable fillInStackTrace() {
             return this;
-        }
     }
 }
