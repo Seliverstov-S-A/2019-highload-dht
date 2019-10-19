@@ -38,7 +38,7 @@ public class ServiceImpl extends HttpServer implements Service {
      * @param dao      interface
      * @param executor worker
      */
-    public ServiceImpl(final int port, final DAO dao, final Executor executor) throws IOException {
+    public ServiceImpl(final int port, @NotNull final DAO dao, @NotNull final Executor executor) throws IOException {
         super(from(port));
         this.dao = dao;
         this.executor = executor;
@@ -61,7 +61,7 @@ public class ServiceImpl extends HttpServer implements Service {
     }
 
     @Override
-    public HttpSession createSession(final Socket socket) {
+    public HttpSession createSession(@NotNull final Socket socket) {
         return new StorageSession(socket, this);
     }
 
@@ -80,7 +80,7 @@ public class ServiceImpl extends HttpServer implements Service {
      * Method to access to DAO for single entity.
      */
     @Path("/v0/entity")
-    private void entity(final Request request, final HttpSession session) throws IOException {
+    private void entity(@NotNull final Request request, @NotNull final HttpSession session) throws IOException {
         final String id = request.getParameter("id=");
         if (id == null || id.isEmpty()) {
             try {
@@ -129,7 +129,7 @@ public class ServiceImpl extends HttpServer implements Service {
     }
 
     @Override
-    public void handleDefault(final Request request, final HttpSession session) throws IOException {
+    public void handleDefault(@NotNull final Request request, @NotNull final HttpSession session) throws IOException {
         switch (request.getPath()) {
             case "/v0/entity":
                 entity(request, session);
@@ -143,7 +143,7 @@ public class ServiceImpl extends HttpServer implements Service {
         }
     }
 
-    private void executeAsync(final HttpSession session, final Action action) {
+    private void executeAsync(@NotNull final HttpSession session, @NotNull final Action action) {
         executor.execute(() -> {
             try {
                 session.sendResponse(action.act());
@@ -157,7 +157,7 @@ public class ServiceImpl extends HttpServer implements Service {
         });
     }
 
-    private void entities(final Request request, final HttpSession session) throws IOException {
+    private void entities(@NotNull final Request request, @NotNull final HttpSession session) throws IOException {
         final String start = request.getParameter("start=");
         if (start == null || start.isEmpty()) {
             session.sendError(Response.BAD_REQUEST, "No start");
