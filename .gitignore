@@ -17,6 +17,5 @@
 !*.svg
 !result.txt
 
-
 # ...even if they are in subdirectories
 !*/

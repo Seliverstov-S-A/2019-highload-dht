@@ -75,7 +75,6 @@ public class ServiceImpl extends HttpServer implements Service {
         return Response.ok("OK");
     }
 
-
     /**
      * Method to access to DAO for single entity.
      */

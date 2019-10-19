@@ -36,9 +36,8 @@ dependencies {
     testCompile("org.junit.jupiter:junit-jupiter-api:5.4.0")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.4.0")
 
-            // Добавили новую зависимость
+    // Добавили новую зависимость
     compile("org.rocksdb", "rocksdbjni", "6.2.2")
-
 }
 
 val run by tasks.getting(JavaExec::class) {

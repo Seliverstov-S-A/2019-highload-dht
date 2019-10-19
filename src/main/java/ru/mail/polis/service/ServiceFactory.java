@@ -27,7 +27,6 @@ import ru.mail.polis.dao.DAO;
 
 import ru.mail.polis.service.seliverstov.ServiceImpl;
 
-
 /**
  * Constructs {@link Service} instances.
  *
@@ -58,7 +57,6 @@ public final class ServiceFactory {
         if (port <= 0 || 65536 <= port) {
             throw new IllegalArgumentException("Port out of range");
         }
-
 
         final Executor worker = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
                 new ThreadFactoryBuilder().setNameFormat("worker").build());
