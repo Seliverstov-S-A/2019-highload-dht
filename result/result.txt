@@ -55,40 +55,39 @@ Transfer/sec:    327.13KB
 GET
 Running 30s test @ http://localhost:8080
   4 threads and 4 connections
-  Thread calibration: mean lat.: 1.311ms, rate sampling interval: 10ms
-  Thread calibration: mean lat.: 1.314ms, rate sampling interval: 10ms
-  Thread calibration: mean lat.: 1.311ms, rate sampling interval: 10ms
-  Thread calibration: mean lat.: 1.309ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 2109.887ms, rate sampling interval: 6303ms
+  Thread calibration: mean lat.: 2363.676ms, rate sampling interval: 6791ms
+  Thread calibration: mean lat.: 2378.763ms, rate sampling interval: 6946ms
+  Thread calibration: mean lat.: 2075.907ms, rate sampling interval: 6168ms
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     5.02ms   22.21ms 276.48ms   96.76%
-    Req/Sec     1.34k   487.00     9.56k    94.00%
+    Latency     5.63s     2.92s   13.34s    83.00%
+    Req/Sec     4.30k     1.96k    6.67k    40.00%
   Latency Distribution (HdrHistogram - Recorded Latency)
- 50.000%    1.26ms
- 75.000%    1.81ms
- 90.000%    2.57ms
- 99.000%  128.19ms
- 99.900%  262.40ms
- 99.990%  274.69ms
- 99.999%  276.22ms
-100.000%  276.73ms
+ 50.000%    4.33s 
+ 75.000%    5.67s 
+ 90.000%   11.49s 
+ 99.000%   13.27s 
+ 99.900%   13.34s 
+ 99.990%   13.35s 
+ 99.999%   13.35s 
+100.000%   13.35s 
 
   Detailed Percentile spectrum:
        Value   Percentile   TotalCount 1/(1-Percentile)
 
-       0.059     0.000000            1         1.00
-       0.462     0.100000        10005         1.11
+    3260.415     0.000000           36         1.00
+    3532.799     0.100000        32446         1.11
 ...
-     276.735     0.999991        99883    109226.67
-     276.735     1.000000        99883          inf
-#[Mean    =        5.019, StdDeviation   =       22.207]
-#[Max     =      276.480, Total count    =        99883]
+   13352.959     0.999878       318627      8192.00
+   13352.959     1.000000       318627          inf
+#[Mean    =     5630.360, StdDeviation   =     2922.631]
+#[Max     =    13344.768, Total count    =       318627]
 #[Buckets =           27, SubBuckets     =         2048]
 ----------------------------------------------------------
-  149906 requests in 30.00s, 10.15MB read
-  Non-2xx or 3xx responses: 149906
-Requests/sec:   4996.98
-Transfer/sec:    346.47KB
-
+  518326 requests in 30.00s, 34.11MB read
+  Non-2xx or 3xx responses: 518326
+Requests/sec:  17278.34
+Transfer/sec:      1.14MB
 
 Async ServiceImpl
 
@@ -110,37 +109,40 @@ Transfer/sec:      5.32MB
 GET
 Running 30s test @ http://localhost:8080
   4 threads and 4 connections
-  Thread calibration: mean lat.: 74.394ms, rate sampling interval: 370ms
-  Thread calibration: mean lat.: 65.214ms, rate sampling interval: 334ms
-  Thread calibration: mean lat.: 64.897ms, rate sampling interval: 331ms
-  Thread calibration: mean lat.: 65.526ms, rate sampling interval: 333ms
+  Thread calibration: mean lat.: 1.609ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 1.605ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 1.615ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 1.574ms, rate sampling interval: 10ms
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency    25.96s     0.00us  25.95s     0.00%
-    Req/Sec     0.06      0.53     6.00     98.70%
+    Latency     1.27ms  595.42us   7.89ms   64.64%
+    Req/Sec     1.32k   126.78     2.11k    80.97%
   Latency Distribution (HdrHistogram - Recorded Latency)
- 50.000%   25.97s 
- 75.000%   25.97s 
- 90.000%   25.97s 
- 99.000%   25.97s 
- 99.900%   25.97s 
- 99.990%   25.97s 
- 99.999%   25.97s 
-100.000%   25.97s 
+ 50.000%    1.24ms
+ 75.000%    1.69ms
+ 90.000%    2.10ms
+ 99.000%    2.57ms
+ 99.900%    2.79ms
+ 99.990%    6.35ms
+ 99.999%    7.39ms
+100.000%    7.89ms
 
   Detailed Percentile spectrum:
        Value   Percentile   TotalCount 1/(1-Percentile)
 
-   25968.639     0.000000            5         1.00
-   25968.639     1.000000            5          inf
-#[Mean    =    25960.448, StdDeviation   =        0.000]
-#[Max     =    25952.256, Total count    =            5]
+       0.088     0.000000            1         1.00
+       0.477     0.100000        10006         1.11
+...
+       7.891     0.999991        99957    109226.67
+       7.891     1.000000        99957          inf
+#[Mean    =        1.272, StdDeviation   =        0.595]
+#[Max     =        7.888, Total count    =        99957]
 #[Buckets =           27, SubBuckets     =         2048]
 ----------------------------------------------------------
-  16375 requests in 30.05s, 1.20MB read
-  Socket errors: connect 0, read 4, write 0, timeout 49
-  Non-2xx or 3xx responses: 16375
-Requests/sec:    544.90
-Transfer/sec:     40.97KB
+  149982 requests in 30.00s, 9.87MB read
+  Non-2xx or 3xx responses: 149982
+Requests/sec:   4999.81
+Transfer/sec:    336.90KB
+
 
 PUT
 Running 30s test @ http://localhost:8080
