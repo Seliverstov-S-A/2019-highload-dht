@@ -46,8 +46,7 @@ public final class ServiceFactory {
      * @param topology a list of all cluster endpoints {@code http://<host>:<port>} (including this one)
      * @return a storage instance
      */
-     public static Service create(
-            final int port,
+     public static Service create(final int port,
             @NotNull final DAO dao,
             @NotNull final Set<String> topology) throws IOException {
         if (Runtime.getRuntime().maxMemory() > MAX_HEAP) {
