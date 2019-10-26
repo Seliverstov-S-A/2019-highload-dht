@@ -46,7 +46,8 @@ public class ServiceImpl extends HttpServer implements Service {
      * @param dao      interface
      * @param node  cluster
      */
-    private ServiceImpl(final HttpServerConfig config, @NotNull final DAO dao,
+    private ServiceImpl(final HttpServerConfig config,
+                        @NotNull final DAO dao,
                         @NotNull final Node node,
                         @NotNull final Map<String, HttpClient> clusterClients) throws IOException {
         super(config);
@@ -66,8 +67,7 @@ public class ServiceImpl extends HttpServer implements Service {
         try {
             return clusterClients.get(cluster).invoke(request);
         } catch (InterruptedException | PoolException | IOException | HttpException e) {
-            e.printStackTrace();
-            throw new IOException(e.getMessage());
+            throw new IOException(e);
         }
     }
 
