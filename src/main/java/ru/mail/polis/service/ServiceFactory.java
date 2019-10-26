@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import ru.mail.polis.dao.DAO;
 
+import ru.mail.polis.service.seliverstov.Node;
 import ru.mail.polis.service.seliverstov.ServiceImpl;
 
 /**
@@ -61,9 +62,9 @@ public final class ServiceFactory {
             throw new IllegalArgumentException("Port out of range");
         }
 
-        final Executor worker = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
-                new ThreadFactoryBuilder().setNameFormat("worker").build());
-
-        return new ServiceImpl(port, dao, worker);
+        final Node nodes = new Node(topology, "http://localhost:" + port);
+        return ServiceImpl.create(port, dao, nodes);
     }
+
+
 }
