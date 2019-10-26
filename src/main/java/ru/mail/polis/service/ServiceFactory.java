@@ -60,6 +60,4 @@ public final class ServiceFactory {
         final Node nodes = new Node(topology, "http://localhost:" + port);
         return ServiceImpl.create(port, dao, nodes);
     }
-
-
 }
