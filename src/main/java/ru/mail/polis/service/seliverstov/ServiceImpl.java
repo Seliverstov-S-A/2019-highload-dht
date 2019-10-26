@@ -1,7 +1,14 @@
 package ru.mail.polis.service.seliverstov;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import one.nio.http.*;
+import one.nio.http.HttpClient;
+import one.nio.http.HttpServer;
+import one.nio.http.HttpServerConfig;
+import one.nio.http.Request;
+import one.nio.http.Response;
+import one.nio.http.HttpException;
+import one.nio.http.HttpSession;
+import one.nio.http.Path;
 import one.nio.net.ConnectionString;
 import one.nio.net.Socket;
 import one.nio.pool.PoolException;
@@ -25,10 +32,8 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 
 public class ServiceImpl extends HttpServer implements Service {
-    @NotNull
-    private final DAO dao;
-    @NotNull
-    private final Executor executor;
+    @NotNull private final DAO dao;
+    @NotNull private final Executor executor;
     private final Node node;
     private final Map<String, HttpClient> clusterClients;
 
@@ -42,8 +47,8 @@ public class ServiceImpl extends HttpServer implements Service {
      * @param node  cluster
      */
     private ServiceImpl(final HttpServerConfig config, @NotNull final DAO dao,
-                           @NotNull final Node node,
-                           @NotNull final Map<String, HttpClient> clusterClients) throws IOException {
+                        @NotNull final Node node,
+                        @NotNull final Map<String, HttpClient> clusterClients) throws IOException {
         super(config);
         this.dao = dao;
         this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
@@ -52,21 +57,27 @@ public class ServiceImpl extends HttpServer implements Service {
         this.clusterClients = clusterClients;
     }
 
-
     @FunctionalInterface
     interface Action {
         Response act() throws IOException;
     }
 
-    private Response forwardRequestTo(@NotNull final String cluster, final Request request) throws IOException {
-
+    private Response forwardRequestTo(@NotNull final String cluster, final Request request) throws IOException{
         try {
             return clusterClients.get(cluster).invoke(request);
-        } catch (InterruptedException | PoolException | HttpException e) {
-            throw new IOException("Forwarding failed for..." + e.getMessage());
+        } catch (InterruptedException | PoolException | IOException | HttpException e) {
+            e.printStackTrace();
+            throw new IOException(e.getMessage());
         }
     }
 
+    /**
+     * Create instance of async service.
+     *
+     * @param port     port
+     * @param dao      interface to access DAO
+     * @param node     cluster
+     */
     public static Service create(final int port, @NotNull final DAO dao,
                                  @NotNull final Node node) throws IOException {
         final var acceptor = new AcceptorConfig();
@@ -75,7 +86,7 @@ public class ServiceImpl extends HttpServer implements Service {
         config.acceptors = new AcceptorConfig[]{acceptor};
         config.maxWorkers = Runtime.getRuntime().availableProcessors();
         config.queueTime = 10;
-        Map<String, HttpClient> clusterClients = new HashMap<>();
+        final Map<String, HttpClient> clusterClients = new HashMap<>();
         for (final String it : node.getNodes()) {
             if (!node.getId().equals(it) && !clusterClients.containsKey(it)) {
                 clusterClients.put(it, new HttpClient(new ConnectionString(it + "?timeout=100")));
