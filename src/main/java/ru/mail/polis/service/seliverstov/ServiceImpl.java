@@ -67,7 +67,7 @@ public class ServiceImpl extends HttpServer implements Service {
         try {
             return clusterClients.get(cluster).invoke(request);
         } catch (InterruptedException | PoolException | IOException | HttpException e) {
-            throw new IOException(e);
+            throw new IOException("Error while forwarding",e);
         }
     }
 
