@@ -1,4 +1,3 @@
-
 ServiceImpl
 
 STATUS 
@@ -183,4 +182,113 @@ Transfer/sec:    327.13KB
 Сравнение.
 Из тестирования производительности HTTP сервера видно, что асинхронная реализация нашего сервера на запросах GET работает в два раза быстрее, а на PUT и STATUS - становится чуть лучше. Из профилирования видно, что теперь появились новые потоки 'worker'-ы.
 
+Sharding ServiceImpl
+STATUS
+Running 10s test @ http://localhost:8080/v0/status
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   195.53us  364.66us  15.59ms   98.29%
+    Req/Sec    25.99k     3.56k   32.97k    83.66%
+  Latency Distribution
+     50%  163.00us
+     75%  178.00us
+     90%  219.00us
+     99%    0.86ms
+  522312 requests in 10.10s, 52.30MB read
+Requests/sec:  51716.57
+Transfer/sec:      5.18MB
 
+PUT
+Running 30s test @ http://localhost:8080
+  4 threads and 4 connections
+  Thread calibration: mean lat.: 2.457ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 2.203ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 2.331ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 2.232ms, rate sampling interval: 10ms
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.25ms  843.92us  20.32ms   87.70%
+    Req/Sec     1.32k   135.09     3.22k    86.17%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.19ms
+ 75.000%    1.58ms
+ 90.000%    1.95ms
+ 99.000%    2.66ms
+ 99.900%   14.05ms
+ 99.990%   18.99ms
+ 99.999%   19.82ms
+100.000%   20.33ms
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+       0.138     0.000000            1         1.00
+       0.503     0.100000        10006         1.11
+...
+      20.335     0.999991        99954    109226.67
+      20.335     1.000000        99954          inf
+#[Mean    =        1.254, StdDeviation   =        0.844]
+#[Max     =       20.320, Total count    =        99954]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  149976 requests in 30.00s, 9.58MB read
+Requests/sec:   4999.71
+Transfer/sec:    327.13KB
+
+GET
+Running 30s test @ http://localhost:8080
+  4 threads and 4 connections
+  Thread calibration: mean lat.: 95.328ms, rate sampling interval: 536ms
+  Thread calibration: mean lat.: 89.975ms, rate sampling interval: 521ms
+  Thread calibration: mean lat.: 94.797ms, rate sampling interval: 528ms
+  Thread calibration: mean lat.: 93.889ms, rate sampling interval: 524ms
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    26.05s     8.19ms  26.05s    50.00%
+    Req/Sec     0.04      0.34     3.00     98.67%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%   26.05s
+ 75.000%   26.07s
+ 90.000%   26.07s
+ 99.000%   26.07s
+ 99.900%   26.07s
+ 99.990%   26.07s
+ 99.999%   26.07s
+100.000%   26.07s
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+   26050.559     0.000000            2         1.00
+   26050.559     0.100000            2         1.11
+   26050.559     0.200000            2         1.25
+   26050.559     0.300000            2         1.43
+   26050.559     0.400000            2         1.67
+   26050.559     0.500000            2         2.00
+   26066.943     0.550000            4         2.22
+   26066.943     1.000000            4          inf
+#[Mean    =    26050.560, StdDeviation   =        8.192]
+#[Max     =    26050.560, Total count    =            4]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  16381 requests in 30.04s, 1.20MB read
+  Socket errors: connect 0, read 4, write 0, timeout 50
+  Non-2xx or 3xx responses: 16381
+Requests/sec:    545.28
+Transfer/sec:     41.00KB
+(base) MacBook-Air-Maria:2019-highload-dht-svyatoslav stakenschneidermac$ wrk -d10s -L http://localhost:8080/v0/status
+Running 10s test @ http://localhost:8080/v0/status
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   172.68us  120.48us   6.22ms   96.97%
+    Req/Sec    27.04k     1.45k   30.33k    70.30%
+  Latency Distribution
+     50%  163.00us
+     75%  177.00us
+     90%  205.00us
+     99%  443.00us
+  543454 requests in 10.10s, 54.42MB read
+Requests/sec:  53805.82
+Transfer/sec:      5.39MB
+
+Сравнение.
+
+Результаты профилирования тяжело сравнивать, так как профилирование проходило на другой машине.
