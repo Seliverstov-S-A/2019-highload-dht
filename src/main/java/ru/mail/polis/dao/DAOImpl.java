@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import static java.lang.Byte.MIN_VALUE;
 import static org.rocksdb.BuiltinComparator.BYTEWISE_COMPARATOR;
@@ -52,6 +53,41 @@ public final class DAOImpl implements DAO {
         @Override
         public void close() {
             iterator.close();
+        }
+    }
+
+    @NotNull
+    public ValueTm getRecordWithTimestamp(@NotNull final ByteBuffer keys)
+            throws IOException, NoSuchElementException {
+        try {
+            final byte[] packedKey = shiftByte(keys);
+            final byte[] valueByteArray = rocksDB.get(packedKey);
+            return ValueTm.fromBytes(valueByteArray);
+        } catch (RocksDBException exception) {
+            throw new IOException("Error while get", exception);
+        }
+    }
+
+    public void upsertRecordWithTimestamp(@NotNull final ByteBuffer keys,
+                                          @NotNull final ByteBuffer values) throws IOException {
+        try {
+            final var record = ValueTm.fromValue(values, System.currentTimeMillis());
+            final byte[] packedKey = shiftByte(keys);
+            final byte[] arrayValue = record.toBytes();
+            rocksDB.put(packedKey, arrayValue);
+        } catch (RocksDBException e) {
+            throw new IOException("Upsert method exception!", e);
+        }
+    }
+
+    public void removeRecordWithTimestamp(@NotNull final ByteBuffer key) throws IOException {
+        try {
+            final byte[] packedKey = shiftByte(key);
+            final var record = ValueTm.tombstone(System.currentTimeMillis());
+            final byte[] arrayValue = record.toBytes();
+            rocksDB.put(packedKey, arrayValue);
+        } catch (RocksDBException e) {
+            throw new IOException("Remove method exception!", e);
         }
     }
 

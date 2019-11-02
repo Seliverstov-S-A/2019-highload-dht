@@ -16,6 +16,7 @@ import one.nio.server.AcceptorConfig;
 import org.jetbrains.annotations.NotNull;
 import ru.mail.polis.Record;
 import ru.mail.polis.dao.DAO;
+import ru.mail.polis.dao.DAOImpl;
 import ru.mail.polis.dao.NoSuchElementExceptionLite;
 import ru.mail.polis.service.Service;
 
@@ -32,11 +33,13 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 
 public class ServiceImpl extends HttpServer implements Service {
-    @NotNull private final DAO dao;
+    @NotNull private final DAOImpl dao;
     @NotNull private final Executor executor;
     private final Node node;
     private final Map<String, HttpClient> clusterClients;
-
+    private static final String PROXY_HEADER = "X-OK-Proxy: True";
+    private final RF defaultRF;
+    private final int clusterSize;
     private static final Logger logger = Logger.getLogger(ServiceImpl.class.getName());
 
     /**
@@ -51,24 +54,18 @@ public class ServiceImpl extends HttpServer implements Service {
                         @NotNull final Node node,
                         @NotNull final Map<String, HttpClient> clusterClients) throws IOException {
         super(config);
-        this.dao = dao;
+        this.dao = (DAOImpl)dao;
         this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
                 new ThreadFactoryBuilder().setNameFormat("worker").build());
         this.node = node;
         this.clusterClients = clusterClients;
+        this.defaultRF = new RF(node.getNodes().size() / 2 + 1, node.getNodes().size());
+        this.clusterSize = node.getNodes().size();
     }
 
     @FunctionalInterface
     interface Action {
         Response act() throws IOException;
-    }
-
-    private Response forwardRequestTo(@NotNull final String node, final Request request) throws IOException{
-        try {
-            return clusterClients.get(node).invoke(request);
-        } catch (InterruptedException | PoolException | IOException | HttpException e) {
-            throw new IOException("Error while forwarding",e);
-        }
     }
 
     /**
@@ -88,11 +85,8 @@ public class ServiceImpl extends HttpServer implements Service {
         config.queueTime = 10;
         final Map<String, HttpClient> clusterClients = new HashMap<>();
         for (final String it : node.getNodes()) {
-            if (!node.getId().equals(it) && !clusterClients.containsKey(it)) {
+            if (!node.getId().equals(it) && !clusterClients.containsKey(it))
                 clusterClients.put(it, new HttpClient(new ConnectionString(it + "?timeout=100")));
-            } else {
-                throw new IllegalStateException("wrong topology");
-            }
         }
         return new ServiceImpl(config, dao, node, clusterClients);
     }
@@ -127,35 +121,44 @@ public class ServiceImpl extends HttpServer implements Service {
             return;
         }
 
-        final var key = ByteBuffer.wrap(id.getBytes(StandardCharsets.UTF_8));
-        final String keyClusterPartition = node.primaryFor(key);
-        if (!node.getId().equals(keyClusterPartition)) {
-            executeAsync(session, () -> forwardRequestTo(keyClusterPartition, request));
-            return;
+        boolean proxied = false;
+        if (request.getHeader(PROXY_HEADER) != null) {
+            proxied = true;
         }
-        try {
-            switch (request.getMethod()) {
-                case Request.METHOD_GET:
-                    executeAsync(session, () -> get(key));
-                    break;
-                case Request.METHOD_PUT:
-                    executeAsync(session, () -> {
-                        dao.upsert(key, ByteBuffer.wrap(request.getBody()));
-                        return new Response(Response.CREATED, Response.EMPTY);
-                    });
-                    break;
-                case Request.METHOD_DELETE:
-                    executeAsync(session, () -> {
-                        dao.remove(key);
-                        return new Response(Response.ACCEPTED, Response.EMPTY);
-                    });
-                    break;
-                default:
-                    session.sendError(Response.METHOD_NOT_ALLOWED, "Wrong method");
-                    break;
+        final String replicas = request.getParameter("replicas");
+        final RF rf = RF.calculateRF(replicas, session, defaultRF, clusterSize);
+        final var key = ByteBuffer.wrap(id.getBytes(StandardCharsets.UTF_8));
+        final boolean proxiedF = proxied;
+
+        if (proxied || node.getNodes().size() > 1) {
+            final Coordinators clusterCoordinator = new Coordinators(node, clusterClients, dao, proxiedF);
+            final String[] replicaClusters = proxied ? new String[]{node.getId()} : node.replicas(rf.getFrom(), key);
+            clusterCoordinator.coordinateRequest(replicaClusters, request, rf.getAck(), session);
+        } else {
+            try {
+                switch (request.getMethod()) {
+                    case Request.METHOD_GET:
+                        executeAsync(session, () -> get(key));
+                        break;
+                    case Request.METHOD_PUT:
+                        executeAsync(session, () -> {
+                            dao.upsert(key, ByteBuffer.wrap(request.getBody()));
+                            return new Response(Response.CREATED, Response.EMPTY);
+                        });
+                        break;
+                    case Request.METHOD_DELETE:
+                        executeAsync(session, () -> {
+                            dao.remove(key);
+                            return new Response(Response.ACCEPTED, Response.EMPTY);
+                        });
+                        break;
+                    default:
+                        session.sendError(Response.METHOD_NOT_ALLOWED, "Wrong method");
+                        break;
+                }
+            } catch (IOException e) {
+                session.sendError(Response.INTERNAL_ERROR, e.getMessage());
             }
-        } catch (IOException e) {
-            session.sendError(Response.INTERNAL_ERROR, e.getMessage());
         }
     }
 
