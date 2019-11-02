@@ -56,6 +56,9 @@ public final class DAOImpl implements DAO {
         }
     }
 
+    /**
+     * Get record from Rocks.
+     */
     @NotNull
     public ValueTm getRecordWithTimestamp(@NotNull final ByteBuffer keys)
             throws IOException, NoSuchElementException {
@@ -68,8 +71,11 @@ public final class DAOImpl implements DAO {
         }
     }
 
+    /**
+     * Put record in DB.
+     */
     public void upsertRecordWithTimestamp(@NotNull final ByteBuffer keys,
-                                          @NotNull final ByteBuffer values) throws IOException {
+                                         @NotNull final ByteBuffer values) throws IOException {
         try {
             final var record = ValueTm.fromValue(values, System.currentTimeMillis());
             final byte[] packedKey = shiftByte(keys);
@@ -80,6 +86,11 @@ public final class DAOImpl implements DAO {
         }
     }
 
+    /**
+     * Delete record from DB.
+     *
+     * @param key to define key
+     */
     public void removeRecordWithTimestamp(@NotNull final ByteBuffer key) throws IOException {
         try {
             final byte[] packedKey = shiftByte(key);

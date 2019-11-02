@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Coordinators {
+class Coordinators {
     @NotNull
     private final DAOImpl dao;
     private final Node nodes;
@@ -35,13 +35,13 @@ public class Coordinators {
     /**
      * Create the cluster coordinator instance.
      *
-     * @param nodes to specify cluster nodes
+     * @param nodes          to specify cluster nodes
      * @param clusterClients to specify the HttpClients of the cluster
-     * @param dao to specify current DAO
-     * @param proxied to specify if the request is sent by proxying
+     * @param dao            to specify current DAO
+     * @param proxied        to specify if the request is sent by proxying
      */
-    public Coordinators(final Node nodes, final Map<String, HttpClient> clusterClients,
-                        @NotNull final DAO dao, final boolean proxied) {
+    Coordinators(final Node nodes, final Map<String, HttpClient> clusterClients,
+                 @NotNull final DAO dao, final boolean proxied) {
         this.dao = (DAOImpl) dao;
         this.nodes = nodes;
         this.clusterClients = clusterClients;
@@ -52,13 +52,13 @@ public class Coordinators {
      * Coordinate the delete among all clusters.
      *
      * @param replicaNodes to define the nodes where to create replicas
-     * @param rqst to define request
-     * @param acks to specify the amount of acks needed
-     * @param proxied to specify if the request is sent by proxying
+     * @param rqst         to define request
+     * @param acks         to specify the amount of acks needed
+     * @param proxied      to specify if the request is sent by proxying
      * @return Response value
      */
-    public Response coordinateDelete(final String[] replicaNodes, final Request rqst,
-                                     final int acks, final boolean proxied) throws IOException {
+    private Response coordinateDelete(final String[] replicaNodes, final Request rqst,
+                                      final int acks, final boolean proxied) throws IOException {
         final String id = rqst.getParameter("id=");
         final var key = ByteBuffer.wrap(id.getBytes(StandardCharsets.UTF_8));
         int asks = 0;
@@ -91,13 +91,13 @@ public class Coordinators {
      * Coordinate the put among all clusters.
      *
      * @param replicaNodes to define the nodes where to create replicas
-     * @param rqst to define request
-     * @param acks to specify the amount of acks needed
-     * @param proxied to specify if the request is sent by proxying
+     * @param rqst         to define request
+     * @param acks         to specify the amount of acks needed
+     * @param proxied      to specify if the request is sent by proxying
      * @return Response value
      */
-    public Response coordinatePut(final String[] replicaNodes, final Request rqst,
-                                  final int acks, final boolean proxied) throws IOException {
+    private Response coordinatePut(final String[] replicaNodes, final Request rqst,
+                                   final int acks, final boolean proxied) throws IOException {
         final String id = rqst.getParameter("id=");
         final var key = ByteBuffer.wrap(id.getBytes(StandardCharsets.UTF_8));
         int asks = 0;
@@ -129,13 +129,13 @@ public class Coordinators {
      * Coordinate the get among all clusters.
      *
      * @param replicaNodes to define the nodes where to create replicas
-     * @param rqst to define request
-     * @param acks to specify the amount of acks needed
-     * @param proxied to specify if the request is sent by proxying
+     * @param rqst         to define request
+     * @param acks         to specify the amount of acks needed
+     * @param proxied      to specify if the request is sent by proxying
      * @return Response value
      */
-    public Response coordinateGet(final String[] replicaNodes, final Request rqst,
-                                  final int acks, final boolean proxied) throws IOException {
+    private Response coordinateGet(final String[] replicaNodes, final Request rqst,
+                                   final int acks, final boolean proxied) throws IOException {
         final String id = rqst.getParameter("id=");
         final var key = ByteBuffer.wrap(id.getBytes(StandardCharsets.UTF_8));
         int asks = 0;
@@ -173,8 +173,8 @@ public class Coordinators {
     private Response processResponses(final String[] replicaNodes,
                                       final List<ValueTm> responses) throws IOException {
         final ValueTm mergedResp = ValueTm.merge(responses);
-        if(mergedResp.isValue()) {
-            if(!proxied && replicaNodes.length == 1) {
+        if (mergedResp.isValue()) {
+            if (!proxied && replicaNodes.length == 1) {
                 return new Response(Response.OK, mergedResp.getValueAsBytes());
             } else if (proxied && replicaNodes.length == 1) {
                 return new Response(Response.OK, mergedResp.toBytes());
@@ -208,7 +208,7 @@ public class Coordinators {
 
     private byte[] copyAndExtractWithTimestampFromByteBuffer(@NotNull final ByteBuffer key) throws IOException {
         final ValueTm res = dao.getRecordWithTimestamp(key);
-        if(res.isEmpty()){
+        if (res.isEmpty()) {
             throw new NoSuchElementException("Element not found!");
         }
         return res.toBytes();
@@ -218,12 +218,12 @@ public class Coordinators {
      * Coordinate the request among all clusters.
      *
      * @param replicaClusters to define the nodes where to create replicas
-     * @param request to define request
-     * @param acks to specify the amount of acks needed
-     * @param session to specify the session where to output messages
+     * @param request         to define request
+     * @param acks            to specify the amount of acks needed
+     * @param session         to specify the session where to output messages
      */
-    public void coordinateRequest(final String[] replicaClusters, final Request request,
-                                  final int acks, final HttpSession session) throws IOException {
+    void coordinateRequest(final String[] replicaClusters, final Request request,
+                           final int acks, final HttpSession session) throws IOException {
         try {
             switch (request.getMethod()) {
                 case Request.METHOD_GET:
@@ -237,7 +237,6 @@ public class Coordinators {
                     return;
                 default:
                     session.sendError(Response.METHOD_NOT_ALLOWED, "Wrong method");
-                    return;
             }
         } catch (IOException e) {
             session.sendError(Response.GATEWAY_TIMEOUT, e.getMessage());

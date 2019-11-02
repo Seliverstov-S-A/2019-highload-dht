@@ -6,12 +6,10 @@ import one.nio.http.HttpServer;
 import one.nio.http.HttpServerConfig;
 import one.nio.http.Request;
 import one.nio.http.Response;
-import one.nio.http.HttpException;
 import one.nio.http.HttpSession;
 import one.nio.http.Path;
 import one.nio.net.ConnectionString;
 import one.nio.net.Socket;
-import one.nio.pool.PoolException;
 import one.nio.server.AcceptorConfig;
 import org.jetbrains.annotations.NotNull;
 import ru.mail.polis.Record;
@@ -33,8 +31,10 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 
 public class ServiceImpl extends HttpServer implements Service {
-    @NotNull private final DAOImpl dao;
-    @NotNull private final Executor executor;
+    @NotNull
+    private final DAOImpl dao;
+    @NotNull
+    private final Executor executor;
     private final Node node;
     private final Map<String, HttpClient> clusterClients;
     private static final String PROXY_HEADER = "X-OK-Proxy: True";
@@ -45,16 +45,16 @@ public class ServiceImpl extends HttpServer implements Service {
     /**
      * Async Service.
      *
-     * @param config     HTTP connections
-     * @param dao      interface
-     * @param node  cluster
+     * @param config HTTP connections
+     * @param dao    interface
+     * @param node   cluster
      */
     private ServiceImpl(final HttpServerConfig config,
                         @NotNull final DAO dao,
                         @NotNull final Node node,
                         @NotNull final Map<String, HttpClient> clusterClients) throws IOException {
         super(config);
-        this.dao = (DAOImpl)dao;
+        this.dao = (DAOImpl) dao;
         this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
                 new ThreadFactoryBuilder().setNameFormat("worker").build());
         this.node = node;
@@ -71,9 +71,9 @@ public class ServiceImpl extends HttpServer implements Service {
     /**
      * Create instance of async service.
      *
-     * @param port     port
-     * @param dao      interface to access DAO
-     * @param node     cluster
+     * @param port port
+     * @param dao  interface to access DAO
+     * @param node cluster
      */
     public static Service create(final int port, @NotNull final DAO dao,
                                  @NotNull final Node node) throws IOException {
@@ -85,8 +85,9 @@ public class ServiceImpl extends HttpServer implements Service {
         config.queueTime = 10;
         final Map<String, HttpClient> clusterClients = new HashMap<>();
         for (final String it : node.getNodes()) {
-            if (!node.getId().equals(it) && !clusterClients.containsKey(it))
+            if (!node.getId().equals(it) && !clusterClients.containsKey(it)) {
                 clusterClients.put(it, new HttpClient(new ConnectionString(it + "?timeout=100")));
+            }
         }
         return new ServiceImpl(config, dao, node, clusterClients);
     }
