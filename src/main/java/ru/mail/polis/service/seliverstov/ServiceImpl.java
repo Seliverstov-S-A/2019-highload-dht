@@ -63,9 +63,9 @@ public class ServiceImpl extends HttpServer implements Service {
         Response act() throws IOException;
     }
 
-    private Response forwardRequestTo(@NotNull final String cluster, final Request request) throws IOException{
+    private Response forwardRequestTo(@NotNull final String node, final Request request) throws IOException{
         try {
-            return clusterClients.get(cluster).invoke(request);
+            return clusterClients.get(node).invoke(request);
         } catch (InterruptedException | PoolException | IOException | HttpException e) {
             throw new IOException("Error while forwarding",e);
         }
@@ -90,6 +90,8 @@ public class ServiceImpl extends HttpServer implements Service {
         for (final String it : node.getNodes()) {
             if (!node.getId().equals(it) && !clusterClients.containsKey(it)) {
                 clusterClients.put(it, new HttpClient(new ConnectionString(it + "?timeout=100")));
+            } else {
+                throw new IllegalStateException("wrong topology");
             }
         }
         return new ServiceImpl(config, dao, node, clusterClients);
