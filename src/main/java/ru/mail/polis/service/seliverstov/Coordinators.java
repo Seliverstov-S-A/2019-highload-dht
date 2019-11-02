@@ -58,7 +58,7 @@ class Coordinators {
      * @return Response value
      */
     private Response coordinateDelete(final String[] replicaNodes, final Request rqst,
-                                      final int acks, final boolean proxied) throws IOException {
+                                      final int acks, final boolean proxied) {
         final String id = rqst.getParameter("id=");
         final var key = ByteBuffer.wrap(id.getBytes(StandardCharsets.UTF_8));
         int asks = 0;
@@ -97,7 +97,7 @@ class Coordinators {
      * @return Response value
      */
     private Response coordinatePut(final String[] replicaNodes, final Request rqst,
-                                   final int acks, final boolean proxied) throws IOException {
+                                   final int acks, final boolean proxied) {
         final String id = rqst.getParameter("id=");
         final var key = ByteBuffer.wrap(id.getBytes(StandardCharsets.UTF_8));
         int asks = 0;
@@ -237,6 +237,7 @@ class Coordinators {
                     return;
                 default:
                     session.sendError(Response.METHOD_NOT_ALLOWED, "Wrong method");
+                    break;
             }
         } catch (IOException e) {
             session.sendError(Response.GATEWAY_TIMEOUT, e.getMessage());

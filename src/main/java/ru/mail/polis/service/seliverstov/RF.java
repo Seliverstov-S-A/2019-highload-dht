@@ -9,11 +9,11 @@ import java.util.List;
 
 import static one.nio.http.Response.BAD_REQUEST;
 
-public class RF {
+class RF {
     private final int ack;
     private final int from;
 
-    public RF(final int ack, final int from) {
+    RF(final int ack, final int from) {
         this.ack = ack;
         this.from = from;
     }
@@ -28,8 +28,17 @@ public class RF {
         return new RF(Integer.parseInt(values.get(0)), Integer.parseInt(values.get(1)));
     }
 
-    public static RF calculateRF(final String replicas, @NotNull final HttpSession session,
-                                 final RF defaultRF, final int clusterSize) throws IOException {
+    /**
+     * Calculate the RF value.
+     *
+     * @param replicas    to define the amount of replicas needed
+     * @param session     to output responses
+     * @param defaultRF   to specify the default RF
+     * @param clusterSize to specify the size of cluster
+     * @return RF value
+     */
+    static RF calculateRF(final String replicas, @NotNull final HttpSession session,
+                          final RF defaultRF, final int clusterSize) throws IOException {
         RF rf = null;
         try {
             rf = replicas == null ? defaultRF : RF.of(replicas);
@@ -43,11 +52,11 @@ public class RF {
         return rf;
     }
 
-    public int getFrom() {
+    int getFrom() {
         return from;
     }
 
-    public int getAck() {
+    int getAck() {
         return ack;
     }
 }
