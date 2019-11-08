@@ -32,8 +32,10 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 
 public class ServiceImpl extends HttpServer implements Service {
-    @NotNull private final DAO dao;
-    @NotNull private final Executor executor;
+    @NotNull
+    private final DAO dao;
+    @NotNull
+    private final Executor executor;
     private final Node node;
     private final Map<String, HttpClient> clusterClients;
 
@@ -42,9 +44,9 @@ public class ServiceImpl extends HttpServer implements Service {
     /**
      * Async Service.
      *
-     * @param config     HTTP connections
-     * @param dao      interface
-     * @param node  cluster
+     * @param config HTTP connections
+     * @param dao    interface
+     * @param node   cluster
      */
     private ServiceImpl(final HttpServerConfig config,
                         @NotNull final DAO dao,
@@ -63,20 +65,20 @@ public class ServiceImpl extends HttpServer implements Service {
         Response act() throws IOException;
     }
 
-    private Response forwardRequestTo(@NotNull final String node, final Request request) throws IOException{
+    private Response forwardRequestTo(@NotNull final String node, final Request request) throws IOException {
         try {
             return clusterClients.get(node).invoke(request);
         } catch (InterruptedException | PoolException | IOException | HttpException e) {
-            throw new IOException("Error while forwarding",e);
+            throw new IOException("Error while forwarding", e);
         }
     }
 
     /**
      * Create instance of async service.
      *
-     * @param port     port
-     * @param dao      interface to access DAO
-     * @param node     cluster
+     * @param port port
+     * @param dao  interface to access DAO
+     * @param node cluster
      */
     public static Service create(final int port, @NotNull final DAO dao,
                                  @NotNull final Node node) throws IOException {
@@ -90,8 +92,6 @@ public class ServiceImpl extends HttpServer implements Service {
         for (final String it : node.getNodes()) {
             if (!node.getId().equals(it) && !clusterClients.containsKey(it)) {
                 clusterClients.put(it, new HttpClient(new ConnectionString(it + "?timeout=100")));
-            } else {
-                throw new IllegalStateException("wrong topology");
             }
         }
         return new ServiceImpl(config, dao, node, clusterClients);

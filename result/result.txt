@@ -1,4 +1,3 @@
-
 ServiceImpl
 
 STATUS 
@@ -181,6 +180,108 @@ Requests/sec:   4999.72
 Transfer/sec:    327.13KB
 
 Сравнение.
-Из тестирования производительности HTTP сервера видно, что асинхронная реализация нашего сервера на запросах GET работает в два раза быстрее, а на PUT и STATUS - становится чуть лучше. Из профилирования видно, что теперь появились новые потоки 'worker'-ы.
+Из тестирования производительности HTTP сервера видно, что асинхронная реализация нашего сервера на запросах
+GET работает в два раза быстрее, а на PUT и STATUS - становится чуть лучше.
+Из профилирования видно, что теперь появились новые потоки 'worker'-ы.
 
+STATUS sharding
+Running 10s test @ http://localhost:8080/v0/status
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   258.36us    1.01ms  27.47ms   98.57%
+    Req/Sec    25.45k     4.40k   46.18k    80.10%
+  Latency Distribution
+     50%  163.00us
+     75%  179.00us
+     90%  232.00us
+     99%    1.96ms
+  508885 requests in 10.10s, 50.96MB read
+Requests/sec:  50379.24
+Transfer/sec:      5.04MB
 
+GET sharding
+Running 30s test @ http://localhost:8080
+  4 threads and 4 connections
+  Thread calibration: mean lat.: 1.291ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 1.286ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 1.285ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 1.278ms, rate sampling interval: 10ms
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.27ms  585.94us   6.74ms   66.13%
+    Req/Sec     1.32k   123.93     1.90k    82.60%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.23ms
+ 75.000%    1.66ms
+ 90.000%    2.06ms
+ 99.000%    2.57ms
+ 99.900%    4.09ms
+ 99.990%    5.99ms
+ 99.999%    6.57ms
+100.000%    6.74ms
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+       0.087     0.000000            1         1.00
+       0.501     0.100000        10007         1.11
+       0.748     0.200000        20049         1.25
+       0.921     0.300000        30031         1.43
+...
+       6.575     0.999988        99966     81920.00
+       6.575     0.999989        99966     93622.86
+       6.743     0.999991        99967    109226.67
+       6.743     1.000000        99967          inf
+#[Mean    =        1.265, StdDeviation   =        0.586]
+#[Max     =        6.740, Total count    =        99967]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  149989 requests in 30.00s, 9.87MB read
+  Non-2xx or 3xx responses: 149989
+Requests/sec:   4999.77
+Transfer/sec:    336.90KB
+
+PUT sharding
+Running 30s test @ http://localhost:8080
+  4 threads and 4 connections
+  Thread calibration: mean lat.: 1.297ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 1.270ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 1.278ms, rate sampling interval: 10ms
+  Thread calibration: mean lat.: 1.274ms, rate sampling interval: 10ms
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     2.10ms    5.20ms  86.53ms   96.76%
+    Req/Sec     1.32k   276.72     4.90k    92.19%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.26ms
+ 75.000%    1.73ms
+ 90.000%    2.29ms
+ 99.000%   30.94ms
+ 99.900%   61.73ms
+ 99.990%   82.69ms
+ 99.999%   86.53ms
+100.000%   86.59ms
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+       0.113     0.000000            1         1.00
+       0.518     0.100000        10022         1.11
+       0.758     0.200000        20047         1.25
+       0.946     0.300000        30034         1.43
+...
+      86.527     0.999988        99963     81920.00
+      86.527     0.999989        99963     93622.86
+      86.591     0.999991        99964    109226.67
+      86.591     1.000000        99964          inf
+#[Mean    =        2.101, StdDeviation   =        5.203]
+#[Max     =       86.528, Total count    =        99964]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  149987 requests in 30.00s, 9.58MB read
+Requests/sec:   4999.78
+Transfer/sec:    327.13KB
+
+Сравнение
+Время обработки запросов для метода put немного увеличилась для персентиля 100.0%. Это может объясняеться тем, что некоторое время тратится теперь на проксирование.
+Время вызов status должно было остаться прежним т.к. его обрабатывают непосредственно селекторы сервера, небольшие изменения во времени - "погрешность машины".
+
+На результатах профилирования видно, что также изменилась и картина cpu профиля для запросов. Потому что мы добавили новые узлы для обработки запросов.
