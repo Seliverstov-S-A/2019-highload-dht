@@ -12,15 +12,15 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
-final class StorageSession extends HttpSession {
+final class StreamStorageSession extends HttpSession {
     private static final byte[] CRLF = "\r\n".getBytes(StandardCharsets.UTF_8);
     private static final byte LF = '\n';
     private static final byte[] EMPTY_CHUNK = "0\r\n\r\n".getBytes(StandardCharsets.UTF_8);
 
     private Iterator<Record> records;
 
-    StorageSession(@NotNull final Socket socket,
-                   @NotNull final HttpServer server) {
+    StreamStorageSession(@NotNull final Socket socket,
+                         @NotNull final HttpServer server) {
         super(socket, server);
     }
 
@@ -75,7 +75,6 @@ final class StorageSession extends HttpSession {
             write(chunk, 0, chunkLength);
         }
 
-        // 4 wrk
         if (!records.hasNext()) {
             write(EMPTY_CHUNK, 0, EMPTY_CHUNK.length);
 
@@ -88,7 +87,7 @@ final class StorageSession extends HttpSession {
                     try {
                         server.handleRequest(handling, this);
                     } catch (IOException e) {
-                        log.error("Cant process next request: " + handling, e);
+                        log.error("Cant proces next request: " + handling, e);
                     }
                 }
             }

@@ -17,14 +17,14 @@
 package ru.mail.polis.service;
 
 import java.io.IOException;
+
 import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 
 import ru.mail.polis.dao.DAO;
-
 import ru.mail.polis.service.seliverstov.Node;
-import ru.mail.polis.service.seliverstov.ServiceImpl;
+import ru.mail.polis.service.seliverstov.AsyncHttpService;
 
 /**
  * Constructs {@link Service} instances.
@@ -46,7 +46,9 @@ public final class ServiceFactory {
      * @param topology a list of all cluster endpoints {@code http://<host>:<port>} (including this one)
      * @return a storage instance
      */
-     public static Service create(final int port,
+    @NotNull
+    public static Service create(
+            final int port,
             @NotNull final DAO dao,
             @NotNull final Set<String> topology) throws IOException {
         if (Runtime.getRuntime().maxMemory() > MAX_HEAP) {
@@ -58,6 +60,6 @@ public final class ServiceFactory {
         }
 
         final Node nodes = new Node(topology, "http://localhost:" + port);
-        return ServiceImpl.create(port, dao, nodes);
+        return AsyncHttpService.create(port, dao, nodes);
     }
 }
