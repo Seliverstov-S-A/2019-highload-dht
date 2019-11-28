@@ -98,7 +98,7 @@ public class TimestampRecord {
         return bytes[0] != RecordType.VALUE.value;
     }
 
-    public static TimestampRecord tombstone(@NotNull final long timestamp) {
+    public static TimestampRecord tombstone(final long timestamp) {
         return new TimestampRecord(timestamp, null, RecordType.DELETED);
     }
 
@@ -149,7 +149,7 @@ public class TimestampRecord {
      * @param responses to define the input records
      * @return latest timestamp record instance
      */
-    public static TimestampRecord merge(@NotNull final List<TimestampRecord> responses) {
+    public static TimestampRecord merge(final List<TimestampRecord> responses) {
         if (responses.size() == 1) return responses.get(0);
         else {
             return responses.stream()
