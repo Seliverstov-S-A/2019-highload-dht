@@ -74,8 +74,7 @@ public final class DAORocksDB implements DAO {
 
     @NotNull
     @Override
-    public ByteBuffer get(@NotNull final ByteBuffer keys) 
-        throws IOException, NoSuchElementException {
+    public ByteBuffer get(@NotNull final ByteBuffer keys) throws IOException, NoSuchElementException {
         synchronized (objLock) {
             try {
                 final byte[] packedKey = decompressKey(keys);
@@ -110,9 +109,7 @@ public final class DAORocksDB implements DAO {
     }
 
     @Override
-    public void upsert(
-                        @NotNull final ByteBuffer keys, 
-                        @NotNull final ByteBuffer values) throws IOException {
+    public void upsert(@NotNull final ByteBuffer keys, @NotNull final ByteBuffer values) throws IOException {
         synchronized (objLock) {
             try {
                 final byte[] packedKey = decompressKey(keys);
