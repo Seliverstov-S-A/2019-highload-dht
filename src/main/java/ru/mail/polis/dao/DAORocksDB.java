@@ -111,7 +111,7 @@ public final class DAORocksDB implements DAO {
 
     @Override
     public void upsert(
-  	                    @NotNull final ByteBuffer keys, 
+                        @NotNull final ByteBuffer keys, 
                         @NotNull final ByteBuffer values) throws IOException {
         synchronized (objLock) {
             try {
