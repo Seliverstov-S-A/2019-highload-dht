@@ -42,7 +42,6 @@ public final class AmmoGenerator {
         return r.ints(min, max).findFirst().getAsInt();
     }
 
-
     private static void generateUniqPuts(final int amount) throws IOException {
         final List<String> keys = getUniqkeys(amount);
         for (final String key : keys) {
@@ -71,8 +70,6 @@ public final class AmmoGenerator {
             getKey(key);
         }
     }
-
-
 
     private static void generateExistGetsNewestFirst(final int amount) throws IOException {
         final List<String> keys = getUniqkeys(amount);
@@ -105,7 +102,6 @@ public final class AmmoGenerator {
             }
         }
     }
-
 
     private static void putKeyVal(final String key, final byte[] value) throws IOException {
         final ByteArrayOutputStream request = new ByteArrayOutputStream();
